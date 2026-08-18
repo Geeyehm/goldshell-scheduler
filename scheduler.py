@@ -62,9 +62,12 @@ def main() -> None:
 
     if args.loop:
         print(f"running in loop mode, checking every {args.loop}s (Ctrl+C to stop)")
-        while True:
-            apply_schedules(config, dry_run=args.dry_run)
-            time.sleep(args.loop)
+        try:
+            while True:
+                apply_schedules(config, dry_run=args.dry_run)
+                time.sleep(args.loop)
+        except KeyboardInterrupt:
+            print("\nstopping.")
     else:
         apply_schedules(config, dry_run=args.dry_run)
 
