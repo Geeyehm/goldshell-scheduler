@@ -1,6 +1,9 @@
 """Minimal client for the Goldshell miner web API: login and power-plan control.
 
-Reverse-engineered from the device's webui-js bundles (see ../webui-js).
+Reverse-engineered from a Goldshell SC-LITE's web UI (bundled Vue.js app).
+Confirmed working on the SC-LITE; other Goldshell models likely share the
+same backend API but have not been tested.
+
 Login: GET /user/login?username=admin&password=<enc>&cipher=true
   where <enc> is AES-128-CBC (zero IV, CryptoJS ZeroPadding), key "!!!!!!!!!!!!!!!!",
   hex-encoded ciphertext of the plaintext password.
