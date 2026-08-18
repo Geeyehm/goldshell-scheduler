@@ -1,0 +1,42 @@
+# Example schedule config for sclite-scheduler.
+#
+# Copy this to config.yaml and fill in real IPs/passwords, then either:
+#   - run it once per cron tick (recommended):
+#       */5 * * * * /usr/bin/python3 /path/to/scheduler.py -c /path/to/config.yaml >> /var/log/sclite-scheduler.log 2>&1
+#   - or run it standalone with its own loop:
+#       python3 scheduler.py -c config.yaml --loop 60
+#
+# Each device switches to whatever schedule entry is most recent (<= now),
+# so schedules persist correctly across midnight without needing a 00:00 entry.
+
+devices:
+  - name: sclite-office
+    ip: 192.168.1.100
+    password: "your-admin-password"
+    schedule:
+      # applies every day unless "days" is set
+      - time: "08:00"
+        mode: hashrate
+      - time: "22:00"
+        mode: idle
+
+  - name: sclite-garage
+    ip: 192.168.1.101
+    password: "your-admin-password"
+    schedule:
+      # weekdays: full power overnight (off-peak electricity), idle during the day
+      - time: "23:00"
+        mode: hashrate
+        days: [mon, tue, wed, thu, fri]
+      - time: "07:00"
+        mode: idle
+        days: [mon, tue, wed, thu, fri]
+      # weekends: idle all day
+      - time: "00:00"
+        mode: idle
+        days: [sat, sun]
+
+      # advanced: target a specific power-plan level directly instead of a
+      # named mode, if your device has more than the usual two plans
+      # - time: "12:00"
+      #   level: 3
