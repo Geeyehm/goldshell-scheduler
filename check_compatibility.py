@@ -4,9 +4,11 @@
 Read-only: only ever sends GET requests, never modifies any device setting.
 
 Useful if goldshell-scheduler doesn't work on your model - run this against
-your own device and share the output (redact anything you don't want public,
-the raw JSON doesn't contain anything sensitive besides your device's local
-IP/MAC) when opening a GitHub issue, so support for your model can be added.
+your own device and share the output when opening a GitHub issue, so support
+for your model can be added. The device's MAC address is redacted
+automatically (it's not needed to diagnose compatibility); the output still
+includes your device's local LAN IP and model/hardware info, which aren't
+sensitive but redact them too if you'd rather not share them.
 
 Usage:
     python3 check_compatibility.py <ip>
