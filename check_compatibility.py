@@ -90,7 +90,7 @@ def check(ip: str, password: str) -> None:
     for i, p in enumerate(plans):
         info = p.get("info", "")
         mhz = GoldshellClient._parse_mhz(info)
-        ok = mhz >= 0
+        ok = mhz is not None
         all_parse_ok = all_parse_ok and ok
         print(f"    [{i}] level={p.get('level')!r} info={info!r} -> {'OK' if ok else 'COULD NOT PARSE MHz'}")
 
