@@ -58,17 +58,22 @@ def main() -> None:
     parser.add_argument("--loop", type=int, metavar="SECONDS", help="run continuously, checking every N seconds, instead of relying on cron")
     args = parser.parse_args()
 
-    config = load_config(args.config)
-
     if args.loop:
         print(f"running in loop mode, checking every {args.loop}s (Ctrl+C to stop)")
+        print(f"reloading {args.config} on every check, so edits take effect without a restart")
         try:
             while True:
-                apply_schedules(config, dry_run=args.dry_run)
+                try:
+                    config = load_config(args.config)
+                except Exception as e:  # noqa: BLE001 - keep the service alive through a bad edit
+                    print(f"failed to reload {args.config}: {e}", file=sys.stderr)
+                else:
+                    apply_schedules(config, dry_run=args.dry_run)
                 time.sleep(args.loop)
         except KeyboardInterrupt:
             print("\nstopping.")
     else:
+        config = load_config(args.config)
         apply_schedules(config, dry_run=args.dry_run)
 
 
