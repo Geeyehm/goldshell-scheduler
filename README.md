@@ -137,7 +137,8 @@ python3 check_compatibility.py <your-miner-ip>
 It reports whether the device's web API has the shape this tool expects
 (login flow, `/mcb/setting` fields, and whether each power plan's
 description parses as a clock speed for `mode: hashrate`/`idle` matching).
-If something doesn't match, share the output in a GitHub issue - that's
+If something doesn't match, [open an issue](https://github.com/McCarthee/goldshell-scheduler/issues/new)
+with your model name and the script's full output pasted in - that's
 exactly the info needed to add support for another model.
 
 ## Config format
