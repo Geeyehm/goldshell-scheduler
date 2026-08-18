@@ -54,10 +54,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-(the cron example below assumes a venv at `venv/bin/python3` - swap in plain
-`python3`/`pip3 install --user` if you skipped it. The systemd example
-assumes no venv, using the system `/usr/bin/python3` directly - the setup
-recommended above for a dedicated machine/container)
+(the cron and systemd examples below assume no venv, using the system
+`/usr/bin/python3` directly - the setup recommended above for a dedicated
+machine/container. If you used a venv instead, swap in its
+`venv/bin/python3` path)
 
 Edit `config.yaml` with your device(s)' IP, admin password, and schedule.
 
@@ -78,7 +78,7 @@ Add a crontab entry to apply the schedule every few minutes - it's cheap and
 idempotent (it only sends an update if the mode actually needs to change):
 
 ```
-*/5 * * * * /path/to/goldshell-scheduler/venv/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml >> /var/log/goldshell-scheduler.log 2>&1
+*/5 * * * * /usr/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml >> /var/log/goldshell-scheduler.log 2>&1
 ```
 
 `crontab -e` to add it. Adjust the paths and `*/5` interval to taste - lower
