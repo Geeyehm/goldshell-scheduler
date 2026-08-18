@@ -1,16 +1,19 @@
-# Example schedule config for sclite-scheduler.
+# Example schedule config for goldshell-scheduler.
 #
-# Copy this to config.yaml and fill in real IPs/passwords, then either:
-#   - run it once per cron tick (recommended):
-#       */5 * * * * /usr/bin/python3 /path/to/scheduler.py -c /path/to/config.yaml >> /var/log/sclite-scheduler.log 2>&1
-#   - or run it standalone with its own loop:
+# Copy this to config.yaml and fill in real IPs/passwords, then run it via
+# one of:
+#   - a cron tick (recommended for quick setups):
+#       */5 * * * * /usr/bin/python3 /path/to/scheduler.py -c /path/to/config.yaml >> /var/log/goldshell-scheduler.log 2>&1
+#   - its own built-in loop, standalone:
 #       python3 scheduler.py -c config.yaml --loop 60
+#   - a systemd service (recommended for unattended/long-running use - see
+#     the "systemd service" option in README.md for the unit file)
 #
 # Each device switches to whatever schedule entry is most recent (<= now),
 # so schedules persist correctly across midnight without needing a 00:00 entry.
 
 devices:
-  - name: sclite-office
+  - name: office
     ip: 192.168.1.100
     password: "your-admin-password"
     schedule:
@@ -20,7 +23,7 @@ devices:
       - time: "22:00"
         mode: idle
 
-  - name: sclite-garage
+  - name: garage
     ip: 192.168.1.101
     password: "your-admin-password"
     schedule:

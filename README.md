@@ -54,8 +54,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-(the cron/systemd examples below assume a venv at `venv/bin/python3` - swap
-in plain `python3`/`pip3 install --user` paths if you skipped it)
+(the cron example below assumes a venv at `venv/bin/python3` - swap in plain
+`python3`/`pip3 install --user` if you skipped it. The systemd example
+assumes no venv, using the system `/usr/bin/python3` directly - the setup
+recommended above for a dedicated machine/container)
 
 Edit `config.yaml` with your device(s)' IP, admin password, and schedule.
 
@@ -107,7 +109,7 @@ Description=Goldshell miner power-plan scheduler
 After=network-online.target
 
 [Service]
-ExecStart=/path/to/goldshell-scheduler/venv/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml --loop 60
+ExecStart=/usr/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml --loop 60
 Restart=on-failure
 User=youruser
 
@@ -146,7 +148,7 @@ exactly the info needed to add support for another model.
 
 ```yaml
 devices:
-  - name: sclite-office        # label, just for log output
+  - name: office               # label, just for log output
     ip: 192.168.1.100
     password: "..."            # the device's web UI admin password
     schedule:
