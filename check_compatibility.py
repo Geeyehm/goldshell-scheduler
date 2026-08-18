@@ -59,7 +59,13 @@ def check(ip: str, password: str) -> None:
     print("[3/3] GET /mcb/setting")
     try:
         setting = client.get_setting()
-        print(json.dumps(setting, indent=2))
+        # "name" is the device's MAC address on every model seen so far - redact it before
+        # printing, since it's an identifying hardware value that adds nothing to compatibility
+        # diagnosis (only the response *shape* matters for that, not this specific value).
+        display_setting = dict(setting)
+        if "name" in display_setting:
+            display_setting["name"] = "<redacted - MAC address, not needed for compatibility>"
+        print(json.dumps(display_setting, indent=2))
     except Exception as e:  # noqa: BLE001
         print(f"  FAILED: {e}")
         return
