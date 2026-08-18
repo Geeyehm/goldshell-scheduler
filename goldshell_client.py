@@ -71,12 +71,12 @@ class GoldshellClient:
         return self._get("/mcb/setting")
 
     @staticmethod
-    def _parse_mhz(info: str) -> int:
-        """'615 MHz 9100 V 40 RPM 40 RPM PV 9400' -> 615"""
+    def _parse_mhz(info: str) -> int | None:
+        """'615 MHz 9100 V 40 RPM 40 RPM PV 9400' -> 615. None if unparseable."""
         try:
             return int(info.strip().split(" MHz", 1)[0].split()[-1])
         except (ValueError, IndexError):
-            return -1
+            return None
 
     def apply_mode(self, mode: str | None = None, level: int | None = None) -> dict:
         """Switch to the power plan matching `mode` ('hashrate'/'idle', by MHz)
@@ -89,7 +89,14 @@ class GoldshellClient:
             if target_index is None:
                 raise GoldshellError(f"{self.ip}: no power plan with level={level}")
         else:
-            mhz = [(self._parse_mhz(p["info"]), i) for i, p in enumerate(plans)]
+            # only compare plans whose MHz actually parsed - an unparseable plan must never
+            # silently win a min()/max() comparison (e.g. as a false "lowest" for idle mode)
+            mhz = [(m, i) for i, p in enumerate(plans) if (m := self._parse_mhz(p["info"])) is not None]
+            if not mhz:
+                raise GoldshellError(
+                    f"{self.ip}: none of this device's power plan descriptions could be parsed "
+                    f"for MHz - use 'level: N' in the schedule instead of a named mode"
+                )
             if mode == "hashrate":
                 target_index = max(mhz)[1]
             elif mode == "idle":
