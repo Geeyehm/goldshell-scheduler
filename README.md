@@ -1,7 +1,7 @@
 # goldshell-scheduler
 
-Switches Goldshell miners between power plans (e.g. "Hashrate Mode" / "Idle
-Mode") on a schedule, across multiple devices, driven by a config file.
+Switches Goldshell miners between power plans on a schedule, across multiple
+devices, driven by a config file.
 
 > **Tested scope:** this has only been built and confirmed working against a
 > **Goldshell SC-LITE**. It's written generically against the web API shared
