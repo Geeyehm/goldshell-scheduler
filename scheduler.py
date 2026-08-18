@@ -52,6 +52,11 @@ def apply_schedules(config: dict, now: datetime | None = None, dry_run: bool = F
 
 
 def main() -> None:
+    # force line-buffering even when stdout/stderr aren't a TTY (e.g. under systemd/journald),
+    # otherwise output can sit unflushed for a long time - or get lost entirely on SIGTERM
+    sys.stdout.reconfigure(line_buffering=True)
+    sys.stderr.reconfigure(line_buffering=True)
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-c", "--config", default="config.yaml", help="path to config file (default: config.yaml)")
     parser.add_argument("--dry-run", action="store_true", help="print actions without applying them")
