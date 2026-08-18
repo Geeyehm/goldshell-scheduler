@@ -15,7 +15,7 @@ from datetime import datetime
 
 import yaml
 
-from goldshell_client import GoldshellClient, GoldshellError
+from goldshell_client import GoldshellClient
 from schedule_resolver import resolve_active_entry
 
 
@@ -27,27 +27,27 @@ def load_config(path: str) -> dict:
 def apply_schedules(config: dict, now: datetime | None = None, dry_run: bool = False) -> None:
     now = now or datetime.now()
     for device in config.get("devices", []):
-        name = device.get("name", device["ip"])
-        entry = resolve_active_entry(device["schedule"], now)
-        if entry is None:
-            print(f"[{name}] no applicable schedule entry for {now:%Y-%m-%d %H:%M}, skipping")
-            continue
-
-        mode = entry.get("mode")
-        level = entry.get("level")
-
-        if dry_run:
-            print(f"[{name}] would apply mode={mode!r} level={level!r} (scheduled {entry['time']})")
-            continue
-
+        name = device.get("name", device.get("ip", "<unknown>"))
         try:
+            entry = resolve_active_entry(device["schedule"], now)
+            if entry is None:
+                print(f"[{name}] no applicable schedule entry for {now:%Y-%m-%d %H:%M}, skipping")
+                continue
+
+            mode = entry.get("mode")
+            level = entry.get("level")
+
+            if dry_run:
+                print(f"[{name}] would apply mode={mode!r} level={level!r} (scheduled {entry['time']})")
+                continue
+
             client = GoldshellClient(device["ip"], device["password"])
             result = client.apply_mode(mode=mode, level=level)
             if result["changed"]:
                 print(f"[{name}] switched power plan -> select={result['select']} (mode={mode!r} level={level!r})")
             else:
                 print(f"[{name}] already on the scheduled plan (select={result['select']})")
-        except (GoldshellError, Exception) as e:  # noqa: BLE001 - report and keep going for other devices
+        except Exception as e:  # noqa: BLE001 - a bad entry/unreachable device shouldn't stop the others
             print(f"[{name}] ERROR: {e}", file=sys.stderr)
 
 
