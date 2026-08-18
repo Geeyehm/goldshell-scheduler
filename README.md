@@ -9,16 +9,31 @@ power-plan control were reverse-engineered from that device's web UI.
 
 ## Setup (Linux)
 
+If this is running on a dedicated machine/container (e.g. its own LXC), a venv
+is unnecessary overhead - just install straight to the system Python:
+
 ```bash
 cd sclite-scheduler
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
+# if that errors with "externally-managed-environment" (Debian 12+/Ubuntu 23.04+):
+#   pip3 install -r requirements.txt --break-system-packages
 
 cp config.example.yaml config.yaml
 chmod 600 config.yaml   # it contains plaintext admin passwords - keep it locked down
 $EDITOR config.yaml
 ```
+
+If instead this shares a machine with other Python projects, use a venv to
+avoid dependency conflicts:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+(the cron/systemd examples below assume a venv at `venv/bin/python3` - swap
+in plain `python3`/`pip3 install --user` paths if you skipped it)
 
 Edit `config.yaml` with your device(s)' IP, admin password, and schedule.
 
