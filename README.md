@@ -7,8 +7,9 @@ Mode") on a schedule, across multiple devices, driven by a config file.
 > **Goldshell SC-LITE**. It's written generically against the web API shared
 > across Goldshell control boards (`/user/login`, `/mcb/setting`), so other
 > models likely work too, but that's untested - if you try it on another
-> model, treat the first run as an experiment (`--dry-run` first) rather than
-> an assumption.
+> model, run the read-only [compatibility checker](#using-it-on-a-different-goldshell-model)
+> first, then treat the first live run as an experiment (`--dry-run` first)
+> rather than an assumption.
 
 ## How it works
 
