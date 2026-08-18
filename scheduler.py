@@ -46,7 +46,7 @@ def apply_schedules(config: dict, now: datetime | None = None, dry_run: bool = F
             if result["changed"]:
                 print(f"[{name}] switched power plan -> select={result['select']} (mode={mode!r} level={level!r})")
             else:
-                print(f"[{name}] already on the scheduled plan (select={result['select']})")
+                print(f"[{name}] already on the scheduled plan (mode={mode!r} level={level!r}, select={result['select']})")
         except Exception as e:  # noqa: BLE001 - a bad entry/unreachable device shouldn't stop the others
             print(f"[{name}] ERROR: {e}", file=sys.stderr)
 
