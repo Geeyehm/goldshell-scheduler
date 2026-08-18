@@ -35,10 +35,11 @@ class GoldshellClient:
         self.timeout = timeout
         self.base = f"http://{ip}"
         self._token: str | None = None
+        self._session = requests.Session()  # reuse one TCP connection across calls to this device
 
     def login(self) -> str:
         enc = _encrypt_password(self.password)
-        r = requests.get(
+        r = self._session.get(
             f"{self.base}/user/login",
             params={"username": "admin", "password": enc, "cipher": "true"},
             timeout=self.timeout,
@@ -56,10 +57,10 @@ class GoldshellClient:
         return {"Authorization": f"Bearer {self._token}"}
 
     def _get(self, path: str) -> dict:
-        r = requests.get(f"{self.base}{path}", headers=self._headers(), timeout=self.timeout)
+        r = self._session.get(f"{self.base}{path}", headers=self._headers(), timeout=self.timeout)
         if r.status_code == 401:
             self.login()
-            r = requests.get(f"{self.base}{path}", headers=self._headers(), timeout=self.timeout)
+            r = self._session.get(f"{self.base}{path}", headers=self._headers(), timeout=self.timeout)
         r.raise_for_status()
         return r.json()
 
@@ -97,6 +98,6 @@ class GoldshellClient:
             return {"changed": False, "select": target_index}
 
         setting["select"] = target_index
-        r = requests.put(f"{self.base}/mcb/setting", headers=self._headers(), json=setting, timeout=self.timeout)
+        r = self._session.put(f"{self.base}/mcb/setting", headers=self._headers(), json=setting, timeout=self.timeout)
         r.raise_for_status()
         return {"changed": True, "select": target_index}
