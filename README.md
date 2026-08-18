@@ -1,11 +1,32 @@
-# sclite-scheduler
+# goldshell-scheduler
 
 Switches Goldshell miners between power plans (e.g. "Hashrate Mode" / "Idle
 Mode") on a schedule, across multiple devices, driven by a config file.
 
-Works against any Goldshell device that exposes the same web API as the
-SC-LITE (`/user/login`, `/mcb/setting`) - the login/encryption scheme and
-power-plan control were reverse-engineered from that device's web UI.
+> **Tested scope:** this has only been built and confirmed working against a
+> **Goldshell SC-LITE**. It's written generically against the web API shared
+> across Goldshell control boards (`/user/login`, `/mcb/setting`), so other
+> models likely work too, but that's untested - if you try it on another
+> model, treat the first run as an experiment (`--dry-run` first) rather than
+> an assumption.
+
+## How it works
+
+1. `scheduler.py` reads `config.yaml` and, for each device, works out which
+   schedule entry should currently be active (`schedule_resolver.py`) - the
+   most recent entry whose time has already passed, looking back across
+   day/weekday boundaries as needed.
+2. It logs into the device's web UI over HTTP (`goldshell_client.py`),
+   replicating exactly what the browser does: the password is AES-encrypted
+   client-side with the device's fixed key before being sent, and the device
+   returns a JWT bearer token used for subsequent requests.
+3. It reads the device's current power-plan settings (`GET /mcb/setting`),
+   works out which of the device's own existing presets matches the
+   scheduled mode (by parsing the clock speed out of each preset's
+   description), and - only if it isn't already active - switches to it
+   (`PUT /mcb/setting`).
+4. Nothing is brute-forced or invented: every request mirrors what the
+   device's own web UI sends when you use it by hand.
 
 ## Setup (Linux)
 
@@ -13,7 +34,7 @@ If this is running on a dedicated machine/container (e.g. its own LXC), a venv
 is unnecessary overhead - just install straight to the system Python:
 
 ```bash
-cd sclite-scheduler
+cd goldshell-scheduler
 pip3 install -r requirements.txt
 # if that errors with "externally-managed-environment" (Debian 12+/Ubuntu 23.04+):
 #   pip3 install -r requirements.txt --break-system-packages
@@ -54,29 +75,38 @@ Add a crontab entry to apply the schedule every few minutes - it's cheap and
 idempotent (it only sends an update if the mode actually needs to change):
 
 ```
-*/5 * * * * /path/to/sclite-scheduler/venv/bin/python3 /path/to/sclite-scheduler/scheduler.py -c /path/to/sclite-scheduler/config.yaml >> /var/log/sclite-scheduler.log 2>&1
+*/5 * * * * /path/to/goldshell-scheduler/venv/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml >> /var/log/goldshell-scheduler.log 2>&1
 ```
 
 `crontab -e` to add it. Adjust the paths and `*/5` interval to taste - lower
-intervals mean transitions happen closer to their scheduled time.
+intervals mean transitions happen closer to their scheduled time, but watch
+out for schedule windows narrower than your interval (a 2-minute window can
+get skipped entirely by a 5-minute cron tick).
 
-### Option B: built-in loop (no cron needed)
+### Option B: built-in loop (manual/foreground)
 
 ```bash
 python3 scheduler.py -c config.yaml --loop 60
 ```
 
-Runs forever, re-checking every 60 seconds. Useful for testing, or wrap it in
-a systemd service if you want it supervised:
+Runs forever in the foreground, re-checking every 60 seconds, reloading
+`config.yaml` on every check so edits take effect without a restart. Good
+for testing or a quick one-off session, but it stops if your terminal closes
+- for anything long-running unattended, use Option C instead.
+
+### Option C: systemd service (recommended for unattended/long-running use)
+
+Wraps Option B's loop mode in a proper supervised service - starts on boot,
+restarts on failure/crash, and logs to `journalctl`:
 
 ```ini
-# /etc/systemd/system/sclite-scheduler.service
+# /etc/systemd/system/goldshell-scheduler.service
 [Unit]
 Description=Goldshell miner power-plan scheduler
 After=network-online.target
 
 [Service]
-ExecStart=/path/to/sclite-scheduler/venv/bin/python3 /path/to/sclite-scheduler/scheduler.py -c /path/to/sclite-scheduler/config.yaml --loop 60
+ExecStart=/path/to/goldshell-scheduler/venv/bin/python3 /path/to/goldshell-scheduler/scheduler.py -c /path/to/goldshell-scheduler/config.yaml --loop 60
 Restart=on-failure
 User=youruser
 
@@ -85,7 +115,13 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-sudo systemctl enable --now sclite-scheduler
+sudo systemctl enable --now goldshell-scheduler
+```
+
+Watch its logs with:
+
+```bash
+journalctl -u goldshell-scheduler -f
 ```
 
 ## Config format
