@@ -124,6 +124,22 @@ Watch its logs with:
 journalctl -u goldshell-scheduler -f
 ```
 
+## Using it on a different Goldshell model
+
+This has only been confirmed on the SC-LITE (see the warning at the top).
+If it doesn't work on your model, run the read-only compatibility checker
+against your own device first - it never modifies anything, only reads:
+
+```bash
+python3 check_compatibility.py <your-miner-ip>
+```
+
+It reports whether the device's web API has the shape this tool expects
+(login flow, `/mcb/setting` fields, and whether each power plan's
+description parses as a clock speed for `mode: hashrate`/`idle` matching).
+If something doesn't match, share the output in a GitHub issue - that's
+exactly the info needed to add support for another model.
+
 ## Config format
 
 ```yaml
