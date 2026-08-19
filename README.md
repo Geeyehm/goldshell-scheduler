@@ -159,6 +159,9 @@ devices:
       - time: "23:00"           # optional: restrict an entry to specific days
         mode: hashrate
         days: [mon, tue, wed, thu, fri]
+      - time: "10:00"           # optional: restrict an entry to specific months
+        mode: idle               # e.g. cheaper off-peak rates only apply part of the year
+        months: [jun, jul, aug]
       # - time: "12:00"        # advanced: pick a plan by its exact "level"
       #   level: 3             # number instead of a named mode
 ```
@@ -166,7 +169,8 @@ devices:
 The schedule uses "last transition wins" semantics: at any moment, the
 active entry is whichever one most recently passed, looking back across day
 boundaries as needed - so you don't need a `00:00` entry for a schedule to
-carry over correctly past midnight.
+carry over correctly past midnight. `days` and `months` can be combined on
+the same entry (both must match) or used independently.
 
 `mode: hashrate` / `mode: idle` are resolved generically by parsing the
 "XXX MHz" figure out of each power plan's description and picking the
