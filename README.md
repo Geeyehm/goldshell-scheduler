@@ -162,6 +162,14 @@ devices:
       - time: "10:00"           # optional: restrict an entry to specific months
         mode: idle               # e.g. cheaper off-peak rates only apply part of the year
         months: [jun, jul, aug]
+      - time: "01:00"           # days and months can be combined - both must match
+        mode: hashrate           # e.g. only mine 1am-5am on weekends in the cheap months
+        days: [sat, sun]
+        months: [jan, feb, mar, apr]
+      - time: "05:00"
+        mode: idle
+        days: [sat, sun]
+        months: [jan, feb, mar, apr]
       # - time: "12:00"        # advanced: pick a plan by its exact "level"
       #   level: 3             # number instead of a named mode
 ```

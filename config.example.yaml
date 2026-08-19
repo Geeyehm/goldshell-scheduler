@@ -43,3 +43,23 @@ devices:
       # named mode, if your device has more than the usual two plans
       # - time: "12:00"
       #   level: 3
+
+  - name: cabin
+    ip: 192.168.1.102
+    password: "your-admin-password"
+    schedule:
+      # only mine 1am-5am on weekends, and only in the cheap-rate months -
+      # idle the rest of the time. "days" and "months" can be combined on
+      # the same entry (both must match); an unrestricted default entry is
+      # needed as a fallback for every other day/month/time, otherwise
+      # those periods have no matching entry and get skipped entirely
+      - time: "00:00"
+        mode: idle
+      - time: "01:00"
+        mode: hashrate
+        days: [sat, sun]
+        months: [jan, feb, mar, apr]
+      - time: "05:00"
+        mode: idle
+        days: [sat, sun]
+        months: [jan, feb, mar, apr]
