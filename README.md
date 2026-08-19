@@ -174,6 +174,18 @@ highest/lowest - this matched the SC-LITE's two default plans (`615 MHz` /
 `0 MHz`) without hardcoding model-specific values, but if a device has more
 than two plans, use `level: N` on a schedule entry to target one exactly.
 
+## Troubleshooting
+
+**Login fails (`500 Server Error`) against a freshly factory-reset or
+freshly (re)flashed device, even with the correct/default password.** This
+is a device quirk, not a bug in this tool or a wrong password - confirmed
+against a real SC-LITE where the actual, correct password still failed
+login via the API until the password was set once through the device's own
+web UI (the change-password flow, even setting it to the exact same value
+it already had). Only after that did API login start working. If you hit
+this on a freshly reset/flashed device, open its web UI, go through
+change-password once, and retry.
+
 ## Security note
 
 The device's login endpoint only accepts a password (no separate API key),
